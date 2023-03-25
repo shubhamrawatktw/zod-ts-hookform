@@ -12,13 +12,6 @@ import { useEffect } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 const formSchema = z.object({
-  name: z.string({ required_error: "Name is required" }).min(2),
-  email: z.string().email({ message: "Invalid email address" }),
-  mobile: z
-    .number({ invalid_type_error: "Required" })
-    .min(10, { message: "min 10" })
-    .max(10, { message: "max 10" }),
-  age: z.number(),
   state: z.string(),
 });
 
@@ -53,30 +46,8 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            type="text"
-            placeholder="name"
-            register={register("name")}
-          />
-          <TextField
-            type="text"
-            placeholder="email"
-            register={register("email")}
-          />
-          <TextField
-            type="number"
-            placeholder="number"
-            register={register("mobile", { valueAsNumber: true })}
-            renderError={() =>
-              errors?.mobile ? <p>{errors.mobile.message}</p> : <></>
-            }
-          />
-          <TextField
-            type="number"
-            placeholder="age"
-            register={register("age", { valueAsNumber: true })}
-          />
-          <select {...register("state")}>
+          <select defaultValue="" {...register("state")}>
+            <option value="" disabled> Select state</option>
             <option value="shubham">shubham</option>
             <option value="rawat">rawat</option>
           </select>
