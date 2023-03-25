@@ -1,11 +1,48 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import TextField from "./components/TextField";
+import { useForm } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form/dist/types/form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
+
+const formSchema = z.object({
+  name: z.string({ required_error: "Name is required" }).min(2),
+  email: z.string().email({ message: "Invalid email address" }),
+  mobile: z
+    .number({ invalid_type_error: "Required" })
+    .min(10, { message: "min 10" })
+    .max(10, { message: "max 10" }),
+  age: z.number(),
+  state: z.string(),
+});
+
+export type formTypes = z.infer<typeof formSchema>;
 
 export default function Home() {
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useForm<formTypes>({ resolver: zodResolver(formSchema) });
+  const onSubmit: SubmitHandler<formTypes> = (data) => {
+    console.log(getValues(), "values");
+  };
+
+  console.log(errors, "errors");
+  useEffect(() => {
+    if (getValues("mobile")) {
+      setValue("age", 13);
+    }
+  }, [getValues("mobile")]);
+
   return (
     <>
       <Head>
@@ -15,109 +52,37 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            type="text"
+            placeholder="name"
+            register={register("name")}
           />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+          <TextField
+            type="text"
+            placeholder="email"
+            register={register("email")}
+          />
+          <TextField
+            type="number"
+            placeholder="number"
+            register={register("mobile", { valueAsNumber: true })}
+            renderError={() =>
+              errors?.mobile ? <p>{errors.mobile.message}</p> : <></>
+            }
+          />
+          <TextField
+            type="number"
+            placeholder="age"
+            register={register("age", { valueAsNumber: true })}
+          />
+          <select {...register("state")}>
+            <option value="shubham">shubham</option>
+            <option value="rawat">rawat</option>
+          </select>
+          <button type="submit">submit</button>
+        </form>
       </main>
     </>
-  )
+  );
 }
